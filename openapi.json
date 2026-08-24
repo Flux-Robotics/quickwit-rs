@@ -1,0 +1,2718 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Quickwit",
+    "description": "REST API server",
+    "contact": { "name": "Quickwit, Inc.", "email": "hello@quickwit.io" },
+    "license": { "name": "AGPL-3.0-or-later" },
+    "version": "0.8.2"
+  },
+  "paths": {
+    "/api/v1/_elastic": {
+      "get": {
+        "tags": ["Cluster Info"],
+        "operationId": "elastic_cluster_info_filter",
+        "responses": {}
+      }
+    },
+    "/api/v1/cluster": {
+      "get": {
+        "tags": ["Cluster Info"],
+        "summary": "Get cluster information.",
+        "description": "Get cluster information.",
+        "operationId": "get_cluster",
+        "responses": {
+          "200": {
+            "description": "Successfully fetched cluster information.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ClusterSnapshot" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/config": {
+      "get": {
+        "tags": ["Node Info"],
+        "operationId": "node_config_handler",
+        "responses": {}
+      }
+    },
+    "/api/v1/indexes": {
+      "get": {
+        "tags": ["Indexes"],
+        "summary": "Gets indexes metadata.",
+        "description": "Gets indexes metadata.",
+        "operationId": "list_indexes_metadata",
+        "parameters": [
+          {
+            "name": "index_id_patterns",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": { "type": "string" },
+              "nullable": true
+            }
+          },
+          {
+            "name": "index_id_patterns",
+            "in": "path",
+            "description": "The index ID pattern to retrieve indexes for.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched all indexes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VersionedIndexMetadata"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Indexes"],
+        "summary": "Creates index.",
+        "description": "Creates index.",
+        "operationId": "create_index",
+        "parameters": [
+          {
+            "name": "overwrite",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "boolean" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VersionedIndexConfig" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created index.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionedIndexMetadata"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/indexes/{index_id}": {
+      "delete": {
+        "tags": ["Indexes"],
+        "summary": "Deletes index.",
+        "description": "Deletes index.",
+        "operationId": "delete_index",
+        "parameters": [
+          {
+            "name": "dry_run",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "boolean" }
+          },
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to delete.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted index.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/FileEntry" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/indexes/{index_id}/clear": {
+      "put": {
+        "tags": ["Indexes"],
+        "summary": "Removes all of the data (splits, queued document) associated with the index, but keeps the index",
+        "description": "Removes all of the data (splits, queued document) associated with the index, but keeps the index\nconfiguration. (See also, `delete-index`).",
+        "operationId": "clear_index",
+        "parameters": [
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to clear.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "Successfully cleared index." } }
+      }
+    },
+    "/api/v1/indexes/{index_id}/describe": {
+      "get": {
+        "tags": ["Indexes"],
+        "summary": "Describes an index.",
+        "description": "Describes an index.",
+        "operationId": "describe_index",
+        "parameters": [
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to describe.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched stats about Index.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IndexStats" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/indexes/{index_id}/sources": {
+      "post": {
+        "tags": ["Sources"],
+        "summary": "Creates Source.",
+        "description": "Creates Source.",
+        "operationId": "create_source",
+        "parameters": [
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to create a source for.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VersionedSourceConfig" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created source.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionedSourceConfig"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/indexes/{index_id}/sources/{source_id}": {
+      "delete": {
+        "tags": ["Sources"],
+        "summary": "Deletes source.",
+        "description": "Deletes source.",
+        "operationId": "delete_source",
+        "parameters": [
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to remove the source from.",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "source_id",
+            "in": "path",
+            "description": "The source ID to remove from the index.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Successfully deleted source." }
+        }
+      }
+    },
+    "/api/v1/indexes/{index_id}/sources/{source_id}/reset-checkpoint": {
+      "put": {
+        "tags": ["Sources"],
+        "summary": "Resets source checkpoint.",
+        "description": "Resets source checkpoint.",
+        "operationId": "reset_source_checkpoint",
+        "parameters": [
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID of the source.",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "source_id",
+            "in": "path",
+            "description": "The source ID whose checkpoint is reset.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Successfully reset source checkpoint." }
+        }
+      }
+    },
+    "/api/v1/indexes/{index_id}/sources/{source_id}/toggle": {
+      "put": {
+        "tags": ["Sources"],
+        "summary": "Toggles source.",
+        "description": "Toggles source.",
+        "operationId": "toggle_source",
+        "parameters": [
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID of the source.",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "source_id",
+            "in": "path",
+            "description": "The source ID to toggle.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ToggleSource" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": { "description": "Successfully toggled source." }
+        }
+      }
+    },
+    "/api/v1/indexes/{index_id}/splits": {
+      "get": {
+        "tags": ["Indexes"],
+        "summary": "Get splits.",
+        "description": "Get splits.",
+        "operationId": "list_splits",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "If set, define the number of splits to skip",
+            "required": false,
+            "schema": { "type": "integer", "nullable": true, "minimum": 0 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "If set, restrict maximum number of splits to retrieve",
+            "required": false,
+            "schema": { "type": "integer", "nullable": true, "minimum": 0 }
+          },
+          {
+            "name": "split_states",
+            "in": "query",
+            "description": "A specific split state(s) to filter by.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/SplitState" },
+              "nullable": true
+            }
+          },
+          {
+            "name": "start_timestamp",
+            "in": "query",
+            "description": "If set, restrict splits to documents with a `timestamp >= start_timestamp`.\nThis timestamp is in seconds.",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "nullable": true }
+          },
+          {
+            "name": "end_timestamp",
+            "in": "query",
+            "description": "If set, restrict splits to documents with a `timestamp < end_timestamp`.\nThis timestamp is in seconds.",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "nullable": true }
+          },
+          {
+            "name": "end_create_timestamp",
+            "in": "query",
+            "description": "If set, restrict splits whose creation dates are before this date.",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "nullable": true }
+          },
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to retrieve splits for.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched splits.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ListSplitsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/indexes/{index_id}/splits/mark-for-deletion": {
+      "put": {
+        "tags": ["Splits"],
+        "summary": "Marks splits for deletion.",
+        "description": "Marks splits for deletion.",
+        "operationId": "mark_splits_for_deletion",
+        "parameters": [
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to mark splits for deletion for.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SplitsForDeletion" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": { "description": "Successfully marked splits for deletion." }
+        }
+      }
+    },
+    "/api/v1/indexing": {
+      "get": {
+        "tags": ["Indexing"],
+        "summary": "Observe Indexing Pipeline",
+        "description": "Observe Indexing Pipeline",
+        "operationId": "indexing_endpoint",
+        "responses": {
+          "200": {
+            "description": "Successfully observed indexing pipelines.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IndexingStatistics" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/templates": {
+      "get": {
+        "tags": ["Templates"],
+        "summary": "Retrieves all the index templates stored in the metastore.",
+        "description": "Retrieves all the index templates stored in the metastore.",
+        "operationId": "list_index_templates",
+        "responses": {
+          "200": {
+            "description": "The index template was successfuly retrieved."
+          }
+        }
+      },
+      "post": {
+        "tags": ["Templates"],
+        "summary": "Creates a new index template.",
+        "description": "Creates a new index template.",
+        "operationId": "create_index_template",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionedIndexTemplate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The index template was successfuly created."
+          }
+        }
+      }
+    },
+    "/api/v1/templates/{template_id}": {
+      "get": {
+        "tags": ["Templates"],
+        "summary": "Retrieves the index template identified by `template_id`.",
+        "description": "Retrieves the index template identified by `template_id`.",
+        "operationId": "get_index_template",
+        "parameters": [
+          {
+            "name": "template_id",
+            "in": "path",
+            "description": "The template ID to retrieve.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The index template was successfuly retrieved."
+          },
+          "404": { "description": "The index template was not found." }
+        }
+      },
+      "put": {
+        "tags": ["Templates"],
+        "summary": "Updates the index template identified by `template_id`.",
+        "description": "Updates the index template identified by `template_id`.",
+        "operationId": "update_index_template",
+        "parameters": [
+          {
+            "name": "template_id",
+            "in": "path",
+            "description": "The template ID to update.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The index template was successfuly retrieved."
+          },
+          "404": { "description": "The index template was not found." }
+        }
+      },
+      "delete": {
+        "tags": ["Templates"],
+        "summary": "Deletes the index template identified by the provided `template_id`.",
+        "description": "Deletes the index template identified by the provided `template_id`.",
+        "operationId": "delete_index_template",
+        "parameters": [
+          {
+            "name": "template_id",
+            "in": "path",
+            "description": "The template ID to delete.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The index template was successfuly deleted."
+          },
+          "404": { "description": "The index template was not found." }
+        }
+      }
+    },
+    "/api/v1/version": {
+      "get": {
+        "tags": ["Node Info"],
+        "operationId": "node_version_handler",
+        "responses": {}
+      }
+    },
+    "/api/v1/{index_id}/delete-tasks": {
+      "get": {
+        "tags": ["Delete Tasks"],
+        "summary": "Get Delete Tasks",
+        "description": "Get Delete Tasks\n\nReturns delete tasks in json format for a given `index_id`.",
+        "operationId": "get_delete_tasks",
+        "parameters": [
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to retrieve delete tasks for.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched delete tasks.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/DeleteTask" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Delete Tasks"],
+        "summary": "Create Delete Task",
+        "description": "Create Delete Task\n\nThis operation will not be immediately executed, instead it will be added to a queue\nand cleaned up in the near future.",
+        "operationId": "post_delete_request",
+        "parameters": [
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to add the delete task to.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DeleteQueryRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully added a new delete task.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DeleteTask" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/{index_id}/ingest": {
+      "post": {
+        "tags": ["Ingest"],
+        "summary": "Ingest documents",
+        "description": "Ingest documents",
+        "operationId": "ingest",
+        "parameters": [
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to add docs to.",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "commit",
+            "in": "query",
+            "description": "Force or wait for commit at the end of the indexing operation.",
+            "required": false,
+            "schema": {
+              "allOf": [{ "$ref": "#/components/schemas/CommitType" }],
+              "nullable": true
+            }
+          },
+          {
+            "name": "detailed_response",
+            "in": "query",
+            "description": "Enable parse_failures in the response. Setting to true might impact performances negatively.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Documents to ingest in NDJSON format and limited to 10MB",
+          "content": { "text/plain": { "schema": { "type": "string" } } },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully ingested documents.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IngestResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/{index_id}/search": {
+      "get": {
+        "tags": ["Search"],
+        "summary": "Search Index (GET Variant)",
+        "description": "Search Index (GET Variant)\n\nParses the search request from the request query string.",
+        "operationId": "search_get_handler",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Query text. The query language is that of tantivy.",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "aggs",
+            "in": "query",
+            "description": "The aggregation JSON string.",
+            "required": false,
+            "schema": { "type": "object" }
+          },
+          {
+            "name": "search_field",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": { "type": "string" },
+              "nullable": true
+            }
+          },
+          {
+            "name": "snippet_fields",
+            "in": "query",
+            "description": "Fields to extract snippets on.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": { "type": "string" },
+              "nullable": true
+            }
+          },
+          {
+            "name": "start_timestamp",
+            "in": "query",
+            "description": "If set, restrict search to documents with a `timestamp >= start_timestamp`.\nThis timestamp is expressed in seconds.",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "nullable": true }
+          },
+          {
+            "name": "end_timestamp",
+            "in": "query",
+            "description": "If set, restrict search to documents with a `timestamp < end_timestamp``.\nThis timestamp is expressed in seconds.",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "nullable": true }
+          },
+          {
+            "name": "max_hits",
+            "in": "query",
+            "description": "Maximum number of hits to return (by default 20).",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "minimum": 0 }
+          },
+          {
+            "name": "start_offset",
+            "in": "query",
+            "description": "First hit to return. Together with num_hits, this parameter\ncan be used for pagination.\n\nE.g.\nThe results with rank [start_offset..start_offset + max_hits) are returned",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "minimum": 0 }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "description": "The output format.",
+            "required": false,
+            "schema": { "$ref": "#/components/schemas/BodyFormat" }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "description": "Specifies how documents are sorted.",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "count_all",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "boolean" }
+          },
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to search.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully executed search.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SearchResponseRest" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Search"],
+        "summary": "Search Index (POST Variant)",
+        "description": "Search Index (POST Variant)\n\nREST POST search handler.\n\nParses the search request from the request body.",
+        "operationId": "search_post_handler",
+        "parameters": [
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to search.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequestQueryString"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully executed search.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SearchResponseRest" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/{index_id}/search/stream": {
+      "get": {
+        "tags": ["Search"],
+        "summary": "Stream Search Index",
+        "description": "Stream Search Index",
+        "operationId": "search_stream_handler",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Query text. The query language is that of tantivy.",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "search_field",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": { "type": "string" },
+              "nullable": true
+            }
+          },
+          {
+            "name": "snippet_fields",
+            "in": "query",
+            "description": "Fields to extract snippet on",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": { "type": "string" },
+              "nullable": true
+            }
+          },
+          {
+            "name": "start_timestamp",
+            "in": "query",
+            "description": "If set, restricts search to documents with a `timestamp >= start_timestamp`.",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "nullable": true }
+          },
+          {
+            "name": "end_timestamp",
+            "in": "query",
+            "description": "If set, restricts search to documents with a `timestamp < end_timestamp``.",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "nullable": true }
+          },
+          {
+            "name": "fast_field",
+            "in": "query",
+            "description": "The fast field to extract.",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "output_format",
+            "in": "query",
+            "description": "The requested output format.",
+            "required": false,
+            "schema": { "$ref": "#/components/schemas/OutputFormat" }
+          },
+          {
+            "name": "partition_by_field",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "nullable": true }
+          },
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to search.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Successfully executed search." }
+        }
+      }
+    },
+    "/api/v1/{index_id}/tail": {
+      "get": {
+        "tags": ["Ingest"],
+        "summary": "Returns the last few ingested documents.",
+        "description": "Returns the last few ingested documents.",
+        "operationId": "tail_endpoint",
+        "parameters": [
+          {
+            "name": "index_id",
+            "in": "path",
+            "description": "The index ID to tail.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched documents.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FetchResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/{otel-traces-index-id}/jaeger/api/services": {
+      "get": {
+        "tags": ["Jaeger"],
+        "operationId": "jaeger_services_handler",
+        "parameters": [
+          {
+            "name": "otel-traces-index-id",
+            "in": "path",
+            "description": "The name of the index to get services for.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched services names.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/{otel-traces-index-id}/jaeger/api/services/{service}/operations": {
+      "get": {
+        "tags": ["Jaeger"],
+        "operationId": "jaeger_service_operations_handler",
+        "parameters": [
+          {
+            "name": "otel-traces-index-id",
+            "in": "path",
+            "description": "The name of the index to get operations for.",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "service",
+            "in": "path",
+            "description": "The name of the service to get operations for.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched operations names the given service.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/{otel-traces-index-id}/jaeger/api/traces": {
+      "get": {
+        "tags": ["Jaeger"],
+        "operationId": "jaeger_traces_search_handler",
+        "parameters": [
+          {
+            "name": "otel-traces-index-id",
+            "in": "path",
+            "description": "The name of the index to get traces for.",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "service",
+            "in": "query",
+            "description": "The service name.",
+            "required": false,
+            "schema": { "type": "string", "nullable": true }
+          },
+          {
+            "name": "operation",
+            "in": "query",
+            "description": "The operation name.",
+            "required": false,
+            "schema": { "type": "string", "nullable": true }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "The start time in nanoseconds.",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "nullable": true }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "description": "The end time in nanoseconds.",
+            "required": false,
+            "schema": { "type": "integer", "format": "int64", "nullable": true }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "description": "Sets tags with values in the logfmt format, such as error=true status=200.",
+            "required": false,
+            "schema": { "type": "string", "nullable": true }
+          },
+          {
+            "name": "min_duration",
+            "in": "query",
+            "description": "Filters all traces with a duration higher than the set value. Possible values are 1.2s, 100ms, 500us.",
+            "required": false,
+            "schema": { "type": "string", "nullable": true }
+          },
+          {
+            "name": "max_duration",
+            "in": "query",
+            "description": "Filters all traces with a duration lower than the set value. Possible values are 1.2s, 100ms, 500us.",
+            "required": false,
+            "schema": { "type": "string", "nullable": true }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limits the number of traces returned.",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32", "nullable": true }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched traces information.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/{otel-traces-index-id}/jaeger/api/traces/{id}": {
+      "get": {
+        "tags": ["Jaeger"],
+        "operationId": "jaeger_traces_handler",
+        "parameters": [
+          {
+            "name": "otel-traces-index-id",
+            "in": "path",
+            "description": "The name of the index to get traces for.",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the trace to get spans for.",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched traces spans for the provided trace ID.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/debugging": {
+      "get": {
+        "tags": ["Get debug information for node"],
+        "summary": "Get Node debug information.",
+        "description": "Get Node debug information.\n\nThe format is not guaranteed to ever be stable, and is meant to provide some introspection to\nhelp with debugging.",
+        "operationId": "debugging_handler",
+        "responses": {
+          "200": {
+            "description": "Successfully fetched debugging info.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetDebugStateRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/livez": {
+      "get": {
+        "tags": ["Node Health"],
+        "summary": "Get Node Liveliness",
+        "description": "Get Node Liveliness",
+        "operationId": "get_liveness",
+        "responses": {
+          "200": {
+            "description": "The service is live.",
+            "content": { "text/plain": { "schema": { "type": "boolean" } } }
+          },
+          "503": {
+            "description": "The service is not live.",
+            "content": { "text/plain": { "schema": { "type": "boolean" } } }
+          }
+        }
+      }
+    },
+    "/health/readyz": {
+      "get": {
+        "tags": ["Node Health"],
+        "summary": "Get Node Readiness",
+        "description": "Get Node Readiness",
+        "operationId": "get_readiness",
+        "responses": {
+          "200": {
+            "description": "The service is ready.",
+            "content": { "text/plain": { "schema": { "type": "boolean" } } }
+          },
+          "503": {
+            "description": "The service is not ready.",
+            "content": { "text/plain": { "schema": { "type": "boolean" } } }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "tags": ["Get Metrics"],
+        "summary": "Get Node Metrics",
+        "description": "Get Node Metrics\n\nThese are in the form of prometheus metrics.",
+        "operationId": "metrics_handler",
+        "responses": {
+          "200": {
+            "description": "Successfully fetched metrics.",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BodyFormat": {
+        "type": "string",
+        "description": "Body output format used for the REST API.",
+        "enum": ["json", "pretty_json"]
+      },
+      "ClusterSnapshot": {
+        "type": "object",
+        "required": [
+          "cluster_id",
+          "self_node_id",
+          "ready_nodes",
+          "live_nodes",
+          "dead_nodes",
+          "chitchat_state_snapshot"
+        ],
+        "properties": {
+          "chitchat_state_snapshot": {
+            "type": "object",
+            "description": "A complete snapshot of the Chitchat cluster state."
+          },
+          "cluster_id": {
+            "type": "string",
+            "description": "The ID of the cluster that the node is a part of.",
+            "example": "qw-cluster-1"
+          },
+          "dead_nodes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/NodeIdSchema" },
+            "description": "The set of cluster node IDs flagged as dead or faulty."
+          },
+          "live_nodes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/NodeIdSchema" },
+            "description": "The set of cluster node IDs that are alive but not ready."
+          },
+          "ready_nodes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/NodeIdSchema" },
+            "description": "The set of cluster node IDs that are ready to handle requests."
+          },
+          "self_node_id": { "$ref": "#/components/schemas/NodeIdSchema" }
+        }
+      },
+      "CommitType": {
+        "type": "string",
+        "description": "Specifies if the ingest request should block waiting for the records to be committed.",
+        "enum": ["auto", "wait_for", "force"]
+      },
+      "ConstWriteAmplificationMergePolicyConfig": {
+        "type": "object",
+        "properties": {
+          "maturation_period": {
+            "type": "string",
+            "description": "Duration relative to `split.created_timestamp` after which a split\nbecomes mature.\nIf `now() >= split.created_timestamp + maturation_period` then\nthe split is considered mature."
+          },
+          "max_merge_factor": {
+            "type": "integer",
+            "description": "Maximum number of splits that can be merged together in a single merge operation.",
+            "minimum": 0
+          },
+          "max_merge_ops": {
+            "type": "integer",
+            "description": "Maximum number of merges that a given split should undergo.",
+            "minimum": 0
+          },
+          "merge_factor": {
+            "type": "integer",
+            "description": "Number of splits to merge together in a single merge operation.",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "CpuCapacity": {
+        "type": "integer",
+        "format": "int32",
+        "description": "The CpuCapacity represents an amount of CPU resource available.\n\nIt is usually expressed in CPU millis (For instance, one full CPU thread is\ndisplayed as `1000m`).",
+        "minimum": 0
+      },
+      "DeleteQuery": {
+        "type": "object",
+        "required": ["index_uid", "query_ast"],
+        "properties": {
+          "end_timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "If set, restrict search to documents with a `timestamp < end_timestamp``.",
+            "nullable": true
+          },
+          "index_uid": { "type": "string", "description": "Index ID." },
+          "query_ast": {
+            "type": "string",
+            "description": "Query text. The query language is that of tantivy.\nQuery AST serialized in JSON"
+          },
+          "start_timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "If set, restrict search to documents with a `timestamp >= start_timestamp`.",
+            "nullable": true
+          }
+        }
+      },
+      "DeleteQueryRequest": {
+        "type": "object",
+        "description": "This struct represents the delete query passed to\nthe rest API.",
+        "required": ["query"],
+        "properties": {
+          "end_timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "If set, restrict delete to documents with a `timestamp < end_timestamp``.",
+            "nullable": true
+          },
+          "query": {
+            "type": "string",
+            "description": "Query text. The query language is that of tantivy."
+          },
+          "search_fields": { "type": "array", "items": { "type": "string" } },
+          "start_timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "If set, restrict delete to documents with a `timestamp >= start_timestamp`.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeleteTask": {
+        "type": "object",
+        "required": ["create_timestamp", "opstamp"],
+        "properties": {
+          "create_timestamp": { "type": "integer", "format": "int64" },
+          "delete_query": {
+            "allOf": [{ "$ref": "#/components/schemas/DeleteQuery" }],
+            "nullable": true
+          },
+          "opstamp": { "type": "integer", "format": "int64", "minimum": 0 }
+        }
+      },
+      "DocBatch": {
+        "type": "object",
+        "required": ["index_id", "doc_buffer", "doc_lengths"],
+        "properties": {
+          "doc_buffer": { "type": "string", "format": "binary" },
+          "doc_lengths": {
+            "type": "array",
+            "items": { "type": "integer", "format": "int32", "minimum": 0 }
+          },
+          "index_id": { "type": "string" }
+        }
+      },
+      "DocMapping": {
+        "type": "object",
+        "properties": {
+          "dynamic_mapping": {
+            "allOf": [{ "$ref": "#/components/schemas/QuickwitJsonOptions" }],
+            "nullable": true
+          },
+          "field_mappings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldMappingEntryForSerialization"
+            },
+            "description": "The mapping of the index schema fields.\n\nThis defines the name, type and other information about the field(s).\n\nProperties are determined by the specified type, for more information\nplease see: <https://quickwit.io/docs/configuration/index-config#field-types>"
+          },
+          "index_field_presence": { "type": "boolean" },
+          "max_num_partitions": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "mode": { "$ref": "#/components/schemas/ModeType" },
+          "partition_key": { "type": "string", "nullable": true },
+          "store_source": { "type": "boolean" },
+          "tag_fields": { "type": "array", "items": { "type": "string" } },
+          "timestamp_field": { "type": "string", "nullable": true },
+          "tokenizers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TokenizerEntry" }
+          }
+        },
+        "additionalProperties": false
+      },
+      "FastFieldOptions": {
+        "oneOf": [
+          { "type": "string", "enum": ["Disabled"] },
+          {
+            "type": "object",
+            "required": ["EnabledWithNormalizer"],
+            "properties": {
+              "EnabledWithNormalizer": {
+                "type": "object",
+                "required": ["normalizer"],
+                "properties": {
+                  "normalizer": {
+                    "$ref": "#/components/schemas/QuickwitTextNormalizer"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "FetchResponse": {
+        "type": "object",
+        "properties": {
+          "doc_batch": {
+            "allOf": [{ "$ref": "#/components/schemas/DocBatch" }],
+            "nullable": true
+          },
+          "first_position": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "minimum": 0
+          }
+        }
+      },
+      "FieldMappingEntryForSerialization": {
+        "type": "object",
+        "description": "A `FieldMappingEntry` defines how a field is indexed, stored,\nand mapped from a JSON document to the related index fields.\n\nProperty parameters which defines the way the value must be indexed.\n\nProperties are determined by the specified type, for more information\nplease see: <https://quickwit.io/docs/configuration/index-config#field-types>",
+        "required": ["name", "type"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Field name in the index schema."
+          },
+          "type": { "type": "string" }
+        },
+        "additionalProperties": { "type": "object" }
+      },
+      "FileSourceParams": {
+        "type": "object",
+        "properties": {
+          "filepath": {
+            "type": "string",
+            "description": "Path of the file to read. Assume stdin if None."
+          }
+        },
+        "additionalProperties": false
+      },
+      "FileEntry": {
+        "type": "object",
+        "description": "A file entry in a split, describing the split file and its size.",
+        "required": [
+          "split_id",
+          "num_docs",
+          "uncompressed_docs_size_bytes",
+          "file_name",
+          "file_size_bytes"
+        ],
+        "properties": {
+          "split_id": {
+            "type": "string",
+            "description": "The split ID."
+          },
+          "num_docs": {
+            "type": "integer",
+            "description": "The number of documents in the split.",
+            "minimum": 0
+          },
+          "uncompressed_docs_size_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The sum of the sizes of the original JSON payloads in bytes.",
+            "minimum": 0
+          },
+          "file_name": {
+            "type": "string",
+            "description": "The name of the split file on disk."
+          },
+          "file_size_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The size of the split file on disk in bytes.",
+            "minimum": 0
+          }
+        }
+      },
+      "GetDebugStateRequestResponse": {
+        "type": "object",
+        "description": "Debug state of the node, including shard table and physical index plan.",
+        "required": ["shard_table", "physical_index_plan"],
+        "properties": {
+          "shard_table": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ShardTableEntry" },
+            "description": "The shard table entries for each source."
+          },
+          "physical_index_plan": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IndexingPlanEntry" },
+            "description": "The physical index plan, listing active indexing tasks per node."
+          }
+        }
+      },
+      "IndexingPipelineTask": {
+        "type": "object",
+        "description": "A single indexing pipeline task assigned to a node.",
+        "required": ["index_uid", "source_id", "pipeline_uid", "shard_ids"],
+        "properties": {
+          "index_uid": {
+            "type": "string",
+            "description": "The index UID the pipeline is indexing into."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "The source ID the pipeline is consuming from."
+          },
+          "pipeline_uid": {
+            "type": "string",
+            "description": "The unique ID of the pipeline."
+          },
+          "shard_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "The shard IDs assigned to this pipeline."
+          }
+        }
+      },
+      "IndexingPlanEntry": {
+        "type": "object",
+        "description": "The set of indexing tasks assigned to a single node.",
+        "required": ["node_id", "tasks"],
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "description": "The ID of the node."
+          },
+          "tasks": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/IndexingPipelineTask" },
+            "description": "The indexing pipeline tasks running on this node."
+          }
+        }
+      },
+      "ShardTableEntry": {
+        "type": "object",
+        "description": "An entry in the shard table, associating a source with its shards.",
+        "required": ["source_id", "shards"],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "description": "The source ID in the form index_id:index_uid:source_name."
+          },
+          "shards": {
+            "type": "array",
+            "items": { "type": "object" },
+            "description": "The shards assigned to this source."
+          }
+        }
+      },
+      "IndexConfigV0_8": {
+        "type": "object",
+        "required": ["index_id", "doc_mapping"],
+        "properties": {
+          "doc_mapping": { "$ref": "#/components/schemas/DocMapping" },
+          "index_id": { "type": "string" },
+          "index_uri": { "type": "string" },
+          "indexing_settings": {
+            "$ref": "#/components/schemas/IndexingSettings"
+          },
+          "retention": {
+            "allOf": [{ "$ref": "#/components/schemas/RetentionPolicy" }],
+            "nullable": true
+          },
+          "search_settings": { "$ref": "#/components/schemas/SearchSettings" }
+        },
+        "additionalProperties": false
+      },
+      "IndexMetadataV0_8": {
+        "type": "object",
+        "required": ["index_config", "checkpoint", "sources"],
+        "properties": {
+          "checkpoint": { "type": "object" },
+          "create_timestamp": { "type": "integer", "format": "int64" },
+          "index_config": {
+            "$ref": "#/components/schemas/VersionedIndexConfig"
+          },
+          "index_uid": { "type": "string" },
+          "sources": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/VersionedSourceConfig" }
+          }
+        }
+      },
+      "IndexRecordOptionSchema": {
+        "type": "string",
+        "enum": ["basic", "freq", "position"]
+      },
+      "IndexStats": {
+        "type": "object",
+        "description": "Describes an index with its main information and statistics.",
+        "required": [
+          "index_id",
+          "index_uri",
+          "num_published_splits",
+          "size_published_splits",
+          "num_published_docs",
+          "size_published_docs_uncompressed"
+        ],
+        "properties": {
+          "index_id": { "type": "string" },
+          "index_uri": { "type": "string" },
+          "max_timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "min_timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "num_published_docs": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "num_published_splits": { "type": "integer", "minimum": 0 },
+          "size_published_docs_uncompressed": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "size_published_splits": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "timestamp_field_name": { "type": "string", "nullable": true }
+        }
+      },
+      "IndexTemplateV0_8": {
+        "type": "object",
+        "required": ["template_id", "index_id_patterns", "doc_mapping"],
+        "properties": {
+          "description": { "type": "string", "nullable": true },
+          "doc_mapping": { "$ref": "#/components/schemas/DocMapping" },
+          "index_id_patterns": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "index_root_uri": { "type": "string" },
+          "indexing_settings": {
+            "$ref": "#/components/schemas/IndexingSettings"
+          },
+          "priority": { "type": "integer", "minimum": 0 },
+          "retention": {
+            "allOf": [{ "$ref": "#/components/schemas/RetentionPolicy" }],
+            "nullable": true
+          },
+          "search_settings": { "$ref": "#/components/schemas/SearchSettings" },
+          "template_id": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "IndexingResources": {
+        "type": "object",
+        "properties": { "heap_size": { "type": "string", "default": "2 GB" } },
+        "additionalProperties": false
+      },
+      "IndexingSettings": {
+        "type": "object",
+        "properties": {
+          "commit_timeout_secs": {
+            "type": "integer",
+            "default": 60,
+            "minimum": 0
+          },
+          "docstore_blocksize": {
+            "type": "integer",
+            "default": 1000000,
+            "minimum": 0
+          },
+          "docstore_compression_level": {
+            "type": "integer",
+            "format": "int32",
+            "default": 8
+          },
+          "merge_policy": { "$ref": "#/components/schemas/MergePolicyConfig" },
+          "resources": { "$ref": "#/components/schemas/IndexingResources" },
+          "split_num_docs_target": {
+            "type": "integer",
+            "description": "The merge policy aims to eventually produce mature splits that have a larger size but\nare within close range of `split_num_docs_target`.\n\nIn other words, splits that contain a number of documents greater than or equal to\n`split_num_docs_target` are considered mature and never merged.",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "IndexingStatistics": {
+        "type": "object",
+        "description": "A Struct that holds all statistical data about indexing",
+        "required": [
+          "num_docs",
+          "num_invalid_docs",
+          "num_local_splits",
+          "num_staged_splits",
+          "num_uploaded_splits",
+          "num_published_splits",
+          "num_empty_splits",
+          "total_bytes_processed",
+          "total_size_splits",
+          "generation",
+          "num_spawn_attempts",
+          "shard_ids"
+        ],
+        "properties": {
+          "generation": {
+            "type": "integer",
+            "description": "Pipeline generation.",
+            "minimum": 0
+          },
+          "num_docs": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of document processed (valid or not)",
+            "minimum": 0
+          },
+          "num_empty_splits": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of empty batches",
+            "minimum": 0
+          },
+          "num_invalid_docs": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of document parse error, or missing timestamps",
+            "minimum": 0
+          },
+          "num_local_splits": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of created split",
+            "minimum": 0
+          },
+          "num_published_splits": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of published splits",
+            "minimum": 0
+          },
+          "num_spawn_attempts": {
+            "type": "integer",
+            "description": "Number of successive pipeline spawn attempts.",
+            "minimum": 0
+          },
+          "num_staged_splits": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of staged splits",
+            "minimum": 0
+          },
+          "num_uploaded_splits": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of uploaded splits",
+            "minimum": 0
+          },
+          "pipeline_metrics_opt": {
+            "allOf": [{ "$ref": "#/components/schemas/PipelineMetrics" }],
+            "nullable": true
+          },
+          "shard_ids": {
+            "type": "array",
+            "items": { "type": "integer", "format": "int64", "minimum": 0 }
+          },
+          "total_bytes_processed": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Size in byte of document processed",
+            "minimum": 0
+          },
+          "total_size_splits": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Size in bytes of resulting split",
+            "minimum": 0
+          }
+        }
+      },
+      "IngestResponse": {
+        "type": "object",
+        "required": ["num_docs_for_processing"],
+        "properties": {
+          "num_docs_for_processing": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "parse_failures": {
+            "type": "array",
+            "items": { "type": "object" }
+          }
+        }
+      },
+      "KafkaSourceParams": {
+        "type": "object",
+        "required": ["topic"],
+        "properties": {
+          "client_log_level": {
+            "type": "string",
+            "description": "Kafka client log level. Possible values are `debug`, `info`, `warn`, and `error`."
+          },
+          "client_params": {
+            "type": "object",
+            "description": "Kafka client configuration parameters."
+          },
+          "enable_backfill_mode": {
+            "type": "boolean",
+            "description": "When backfill mode is enabled, the source exits after reaching the end of the topic."
+          },
+          "topic": {
+            "type": "string",
+            "description": "Name of the topic that the source consumes."
+          }
+        },
+        "additionalProperties": false
+      },
+      "KinesisSourceParams": {
+        "allOf": [
+          {
+            "allOf": [{ "$ref": "#/components/schemas/RegionOrEndpoint" }],
+            "nullable": true
+          },
+          {
+            "type": "object",
+            "required": ["stream_name"],
+            "properties": {
+              "enable_backfill_mode": {
+                "type": "boolean",
+                "description": "When backfill mode is enabled, the source exits after reaching the end of the stream."
+              },
+              "stream_name": { "type": "string" }
+            }
+          }
+        ]
+      },
+      "ListSplitsResponse": {
+        "type": "object",
+        "description": "A paginated list of splits.",
+        "required": ["offset", "size", "splits"],
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "description": "The offset of the first split in the list.",
+            "minimum": 0
+          },
+          "size": {
+            "type": "integer",
+            "description": "The number of splits in the list.",
+            "minimum": 0
+          },
+          "splits": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Split" },
+            "description": "The list of splits."
+          }
+        }
+      },
+      "MergePolicyConfig": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": { "type": { "type": "string", "enum": ["no_merge"] } }
+          },
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConstWriteAmplificationMergePolicyConfig"
+              },
+              {
+                "type": "object",
+                "required": ["type"],
+                "properties": {
+                  "type": { "type": "string", "enum": ["limit_merge"] }
+                }
+              }
+            ]
+          },
+          {
+            "allOf": [
+              { "$ref": "#/components/schemas/StableLogMergePolicyConfig" },
+              {
+                "type": "object",
+                "required": ["type"],
+                "properties": {
+                  "type": { "type": "string", "enum": ["stable_log"] }
+                }
+              }
+            ]
+          }
+        ],
+        "discriminator": { "propertyName": "type" }
+      },
+      "ModeType": {
+        "type": "string",
+        "description": "`Mode` describing how the unmapped field should be handled.",
+        "enum": ["lenient", "strict", "dynamic"]
+      },
+      "NgramTokenizerOption": {
+        "type": "object",
+        "required": ["min_gram", "max_gram"],
+        "properties": {
+          "max_gram": { "type": "integer", "minimum": 0 },
+          "min_gram": { "type": "integer", "minimum": 0 },
+          "prefix_only": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      },
+      "NodeIdSchema": {
+        "type": "object",
+        "required": ["node_id", "generation_id", "gossip_advertise_addr"],
+        "properties": {
+          "generation_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A numeric identifier incremented every time the node leaves and rejoins the cluster.",
+            "example": "1683736537",
+            "minimum": 0
+          },
+          "gossip_advertise_addr": {
+            "type": "string",
+            "description": "The socket address peers should use to gossip with the node.",
+            "example": "127.0.0.1:8000"
+          },
+          "node_id": {
+            "type": "string",
+            "description": "The unique identifier of the node in the cluster.",
+            "example": "node-1"
+          }
+        }
+      },
+      "OutputFormat": {
+        "type": "string",
+        "enum": ["csv", "click_house_row_binary"]
+      },
+      "PipelineMetrics": {
+        "type": "object",
+        "required": ["cpu_millis", "throughput_mb_per_sec"],
+        "properties": {
+          "cpu_millis": { "$ref": "#/components/schemas/CpuCapacity" },
+          "throughput_mb_per_sec": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "PubSubSourceParams": {
+        "type": "object",
+        "required": ["subscription"],
+        "properties": {
+          "credentials_file": {
+            "type": "string",
+            "description": "GCP service account credentials (`None` will use default via\nGOOGLE_APPLICATION_CREDENTIALS)\nPath to a google_cloud_auth::credentials::CredentialsFile serialized in JSON. See also\n`<https://cloud.google.com/docs/authentication/application-default-credentials>` and\n`<https://github.com/yoshidan/google-cloud-rust/tree/main/pubsub#automatically>` and\n`<https://docs.rs/google-cloud-auth/0.12.0/google_cloud_auth/credentials/struct.CredentialsFile.html>`.",
+            "nullable": true
+          },
+          "enable_backfill_mode": {
+            "type": "boolean",
+            "description": "When backfill mode is enabled, the source exits after reaching the end of the topic."
+          },
+          "max_messages_per_pull": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of messages returned by a pull request (default 1,000)",
+            "nullable": true
+          },
+          "project_id": {
+            "type": "string",
+            "description": "GCP project ID (Defaults to credentials file project ID).",
+            "nullable": true
+          },
+          "subscription": {
+            "type": "string",
+            "description": "Name of the subscription that the source consumes."
+          }
+        },
+        "additionalProperties": false
+      },
+      "PulsarSourceAuth": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["token"],
+            "properties": { "token": { "type": "string" } }
+          },
+          {
+            "type": "object",
+            "required": ["oauth2"],
+            "properties": {
+              "oauth2": {
+                "type": "object",
+                "required": ["issuer_url", "credentials_url"],
+                "properties": {
+                  "audience": { "type": "string", "nullable": true },
+                  "credentials_url": { "type": "string" },
+                  "issuer_url": { "type": "string" },
+                  "scope": { "type": "string", "nullable": true }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PulsarSourceParams": {
+        "type": "object",
+        "required": ["topics", "address"],
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "The connection URI for pulsar."
+          },
+          "authentication": {
+            "allOf": [{ "$ref": "#/components/schemas/PulsarSourceAuth" }],
+            "nullable": true
+          },
+          "consumer_name": {
+            "type": "string",
+            "description": "The name to register with the pulsar source.",
+            "default": "quickwit"
+          },
+          "topics": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of the topics that the source consumes."
+          }
+        },
+        "additionalProperties": false
+      },
+      "QuickwitJsonOptions": {
+        "type": "object",
+        "description": "Options associated to a json field.\n\n`QuickwitJsonOptions` is also used to configure\nthe dynamic mapping.",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Optional description of JSON object.",
+            "nullable": true
+          },
+          "expand_dots": {
+            "type": "boolean",
+            "description": "If true, the '.' in json keys will be expanded."
+          },
+          "fast": { "$ref": "#/components/schemas/FastFieldOptions" },
+          "indexed": {
+            "type": "boolean",
+            "description": "If true, all of the element in the json object will be indexed."
+          },
+          "record": { "$ref": "#/components/schemas/IndexRecordOptionSchema" },
+          "stored": {
+            "type": "boolean",
+            "description": "If true, the field will be stored in the doc store."
+          },
+          "tokenizer": {
+            "allOf": [{ "$ref": "#/components/schemas/QuickwitTextTokenizer" }],
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "QuickwitTextNormalizer": {
+        "type": "string",
+        "enum": ["raw", "lowercase"]
+      },
+      "QuickwitTextTokenizer": { "type": "string" },
+      "RegexTokenizerOption": {
+        "type": "object",
+        "required": ["pattern"],
+        "properties": { "pattern": { "type": "string" } },
+        "additionalProperties": false
+      },
+      "RegionOrEndpoint": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["region"],
+            "properties": { "region": { "type": "string" } }
+          },
+          {
+            "type": "object",
+            "required": ["endpoint"],
+            "properties": { "endpoint": { "type": "string" } }
+          }
+        ]
+      },
+      "RetentionPolicy": {
+        "type": "object",
+        "required": ["period"],
+        "properties": {
+          "period": {
+            "type": "string",
+            "description": "Duration of time for which the splits should be retained, expressed in a human-friendly way\n(`1 hour`, `3 days`, `a week`, ...)."
+          },
+          "schedule": {
+            "type": "string",
+            "description": "Defines the frequency at which the retention policy is evaluated and applied, expressed in\na human-friendly way (`hourly`, `daily`, ...) or as a cron expression (`0 0 * * * *`,\n`0 0 0 * * *`)."
+          }
+        },
+        "additionalProperties": false
+      },
+      "SearchRequestQueryString": {
+        "type": "object",
+        "description": "This struct represents the QueryString passed to\nthe rest API.",
+        "required": ["query"],
+        "properties": {
+          "aggs": {
+            "type": "object",
+            "description": "The aggregation JSON string."
+          },
+          "count_all": { "type": "boolean" },
+          "end_timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "If set, restrict search to documents with a `timestamp < end_timestamp``.\nThis timestamp is expressed in seconds.",
+            "nullable": true
+          },
+          "format": { "$ref": "#/components/schemas/BodyFormat" },
+          "max_hits": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Maximum number of hits to return (by default 20).",
+            "minimum": 0
+          },
+          "query": {
+            "type": "string",
+            "description": "Query text. The query language is that of tantivy."
+          },
+          "search_field": {
+            "type": "array",
+            "items": { "type": "string" },
+            "nullable": true
+          },
+          "snippet_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Fields to extract snippets on.",
+            "nullable": true
+          },
+          "sort_by": { "$ref": "#/components/schemas/SortBy" },
+          "start_offset": {
+            "type": "integer",
+            "format": "int64",
+            "description": "First hit to return. Together with num_hits, this parameter\ncan be used for pagination.\n\nE.g.\nThe results with rank [start_offset..start_offset + max_hits) are returned",
+            "minimum": 0
+          },
+          "start_timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "If set, restrict search to documents with a `timestamp >= start_timestamp`.\nThis timestamp is expressed in seconds.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SearchResponseRest": {
+        "type": "object",
+        "description": "SearchResponseRest represents the response returned by the REST search API\nand is meant to be serialized into JSON.",
+        "required": ["num_hits", "hits", "elapsed_time_micros", "errors"],
+        "properties": {
+          "aggregations": { "type": "object", "description": "Aggregations." },
+          "elapsed_time_micros": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Elapsed time.",
+            "minimum": 0
+          },
+          "errors": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Search errors."
+          },
+          "hits": {
+            "type": "array",
+            "items": { "type": "object" },
+            "description": "List of hits returned."
+          },
+          "num_hits": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Overall number of documents matching the query.",
+            "minimum": 0
+          },
+          "snippets": {
+            "type": "array",
+            "items": { "type": "object" },
+            "description": "List of snippets"
+          }
+        }
+      },
+      "SearchSettings": {
+        "type": "object",
+        "properties": {
+          "default_search_fields": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "additionalProperties": false
+      },
+      "SortBy": {
+        "type": "object",
+        "required": ["sort_fields"],
+        "properties": {
+          "sort_fields": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SortField" },
+            "description": "Fields to sort on."
+          }
+        }
+      },
+      "SortField": {
+        "type": "object",
+        "required": ["field_name", "sort_order"],
+        "properties": {
+          "field_name": { "type": "string" },
+          "sort_datetime_format": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Optional sort value format for datetime field only.\nIf none, the default output format for datetime field is\nunix_timestamp_nanos.",
+            "nullable": true
+          },
+          "sort_order": { "type": "integer", "format": "int32" }
+        }
+      },
+      "SortOrder": { "type": "string", "enum": ["asc", "desc"] },
+      "SourceConfigV0_7": {
+        "allOf": [
+          { "$ref": "#/components/schemas/SourceParams" },
+          {
+            "type": "object",
+            "required": ["source_id"],
+            "properties": {
+              "desired_num_pipelines": { "type": "integer", "minimum": 0 },
+              "enabled": { "type": "boolean" },
+              "input_format": {
+                "$ref": "#/components/schemas/SourceInputFormat"
+              },
+              "max_num_pipelines_per_indexer": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "source_id": { "type": "string" },
+              "transform": {
+                "allOf": [{ "$ref": "#/components/schemas/TransformConfig" }],
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "SourceConfigV0_8": {
+        "allOf": [
+          { "$ref": "#/components/schemas/SourceParams" },
+          {
+            "type": "object",
+            "required": ["source_id"],
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "input_format": {
+                "$ref": "#/components/schemas/SourceInputFormat"
+              },
+              "num_pipelines": { "type": "integer", "minimum": 0 },
+              "source_id": { "type": "string" },
+              "transform": {
+                "allOf": [{ "$ref": "#/components/schemas/TransformConfig" }],
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "SourceInputFormat": {
+        "type": "string",
+        "enum": [
+          "json",
+          "otlp_logs_json",
+          "otlp_logs_protobuf",
+          "otlp_traces_json",
+          "otlp_traces_protobuf",
+          "plain_text"
+        ]
+      },
+      "SourceParams": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["source_type", "params"],
+            "properties": {
+              "params": { "$ref": "#/components/schemas/FileSourceParams" },
+              "source_type": { "type": "string", "enum": ["file"] }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["source_type"],
+            "properties": {
+              "source_type": { "type": "string", "enum": ["ingest"] }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["source_type"],
+            "properties": {
+              "source_type": { "type": "string", "enum": ["ingest-api"] }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["source_type"],
+            "properties": {
+              "source_type": { "type": "string", "enum": ["ingest-cli"] }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["source_type", "params"],
+            "properties": {
+              "params": { "$ref": "#/components/schemas/KafkaSourceParams" },
+              "source_type": { "type": "string", "enum": ["kafka"] }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["source_type", "params"],
+            "properties": {
+              "params": { "$ref": "#/components/schemas/KinesisSourceParams" },
+              "source_type": { "type": "string", "enum": ["kinesis"] }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["source_type", "params"],
+            "properties": {
+              "params": { "$ref": "#/components/schemas/PubSubSourceParams" },
+              "source_type": { "type": "string", "enum": ["pubsub"] }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["source_type", "params"],
+            "properties": {
+              "params": { "$ref": "#/components/schemas/PulsarSourceParams" },
+              "source_type": { "type": "string", "enum": ["pulsar"] }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["source_type", "params"],
+            "properties": {
+              "params": { "$ref": "#/components/schemas/VecSourceParams" },
+              "source_type": { "type": "string", "enum": ["vec"] }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["source_type", "params"],
+            "properties": {
+              "params": { "$ref": "#/components/schemas/VoidSourceParams" },
+              "source_type": { "type": "string", "enum": ["void"] }
+            }
+          }
+        ],
+        "discriminator": { "propertyName": "source_type" }
+      },
+      "Split": {
+        "allOf": [
+          { "$ref": "#/components/schemas/VersionedSplitMetadata" },
+          {
+            "type": "object",
+            "required": ["split_state", "update_timestamp"],
+            "properties": {
+              "publish_timestamp": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Timestamp for tracking when the split was published.",
+                "nullable": true
+              },
+              "split_state": { "$ref": "#/components/schemas/SplitState" },
+              "update_timestamp": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Timestamp for tracking when the split was last updated."
+              }
+            }
+          }
+        ],
+        "description": "Carries split metadata."
+      },
+      "SplitInfo": {
+        "type": "object",
+        "description": "A summarized version of the split metadata for display purposes.",
+        "required": [
+          "split_id",
+          "num_docs",
+          "uncompressed_docs_size_bytes",
+          "file_name",
+          "file_size_bytes"
+        ],
+        "properties": {
+          "file_name": {
+            "type": "string",
+            "description": "The name of the split file on disk."
+          },
+          "file_size_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The size of the split file on disk in bytes.",
+            "minimum": 0
+          },
+          "num_docs": {
+            "type": "integer",
+            "description": "The number of documents in the split.",
+            "minimum": 0
+          },
+          "split_id": { "type": "string", "description": "The split ID." },
+          "uncompressed_docs_size_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The sum of the sizes of the original JSON payloads in bytes.",
+            "minimum": 0
+          }
+        }
+      },
+      "SplitMetadataV0_8": {
+        "type": "object",
+        "required": [
+          "split_id",
+          "index_uid",
+          "num_docs",
+          "uncompressed_docs_size_in_bytes",
+          "footer_offsets"
+        ],
+        "properties": {
+          "create_timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Timestamp for tracking when the split was created."
+          },
+          "delete_opstamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Split delete opstamp.",
+            "minimum": 0
+          },
+          "footer_offsets": {
+            "type": "object",
+            "description": "Contains the range of bytes of the footer that needs to be downloaded\nin order to open a split.\n\nThe footer offsets\nmake it possible to download the footer in a single call to `.get_slice(...)`."
+          },
+          "index_uid": {
+            "type": "string",
+            "description": "Uid of the index this split belongs to."
+          },
+          "maturity": {
+            "description": "Split maturity either `Mature` or `Immature` with a given maturation period."
+          },
+          "node_id": { "type": "string", "nullable": true },
+          "num_docs": {
+            "type": "integer",
+            "description": "Number of records (or documents) in the split.",
+            "minimum": 0
+          },
+          "num_merge_ops": { "type": "integer", "minimum": 0 },
+          "partition_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "source_id": { "type": "string", "nullable": true },
+          "split_id": {
+            "type": "string",
+            "description": "Split ID. Joined with the index URI (<index URI>/<split ID>), this ID\nshould be enough to uniquely identify a split.\nIn reality, some information may be implicitly configured\nin the storage resolver: for instance, the Amazon S3 region."
+          },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "A set of tags for categorizing and searching group of splits."
+          },
+          "time_range": {
+            "type": "object",
+            "description": "If a timestamp field is available, the min / max timestamp in\nthe split.",
+            "nullable": true
+          },
+          "uncompressed_docs_size_in_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Sum of the size (in bytes) of the raw documents in this split.\n\nNote this is not the split file size. It is the size of the original\nJSON payloads.",
+            "minimum": 0
+          }
+        }
+      },
+      "SplitState": {
+        "type": "string",
+        "description": "A split state.",
+        "enum": ["Staged", "Published", "MarkedForDeletion"]
+      },
+      "SplitsForDeletion": {
+        "type": "object",
+        "required": ["split_ids"],
+        "properties": {
+          "split_ids": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      },
+      "StableLogMergePolicyConfig": {
+        "type": "object",
+        "properties": {
+          "maturation_period": {
+            "type": "string",
+            "description": "Duration relative to `split.created_timestamp` after which a split\nbecomes mature.\nIf `now() >= split.created_timestamp + maturation_period` then\nthe split is mature."
+          },
+          "max_merge_factor": {
+            "type": "integer",
+            "description": "Maximum number of splits that can be merged together in a single merge operation.",
+            "minimum": 0
+          },
+          "merge_factor": {
+            "type": "integer",
+            "description": "Number of splits to merge together in a single merge operation.",
+            "minimum": 0
+          },
+          "min_level_num_docs": {
+            "type": "integer",
+            "description": "Number of docs below which all splits are considered as belonging to the same level.",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      },
+      "ToggleSource": {
+        "type": "object",
+        "required": ["enable"],
+        "properties": { "enable": { "type": "boolean" } },
+        "additionalProperties": false
+      },
+      "TokenFilterType": {
+        "type": "string",
+        "enum": ["remove_long", "lower_caser", "ascii_folding"]
+      },
+      "TokenizerConfig": {
+        "allOf": [
+          { "$ref": "#/components/schemas/TokenizerType" },
+          {
+            "type": "object",
+            "properties": {
+              "filters": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/TokenFilterType" }
+              }
+            }
+          }
+        ],
+        "description": "Tokenizer configuration."
+      },
+      "TokenizerEntry": {
+        "allOf": [
+          { "$ref": "#/components/schemas/TokenizerConfig" },
+          {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "description": "Tokenizer name." }
+            }
+          }
+        ],
+        "description": "A `TokenizerEntry` defines a custom tokenizer with its name and configuration."
+      },
+      "TokenizerType": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": { "type": "string", "enum": ["multilang"] }
+            }
+          },
+          {
+            "allOf": [
+              { "$ref": "#/components/schemas/NgramTokenizerOption" },
+              {
+                "type": "object",
+                "required": ["type"],
+                "properties": {
+                  "type": { "type": "string", "enum": ["ngram"] }
+                }
+              }
+            ]
+          },
+          {
+            "allOf": [
+              { "$ref": "#/components/schemas/RegexTokenizerOption" },
+              {
+                "type": "object",
+                "required": ["type"],
+                "properties": {
+                  "type": { "type": "string", "enum": ["regex"] }
+                }
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": { "type": { "type": "string", "enum": ["simple"] } }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": { "type": "string", "enum": ["source_code"] }
+            }
+          }
+        ],
+        "discriminator": { "propertyName": "type" }
+      },
+      "TransformConfig": {
+        "type": "object",
+        "required": ["script"],
+        "properties": {
+          "script": {
+            "type": "string",
+            "description": "[VRL] source code of the transform compiled to a VRL [`Program`](vrl::compiler::Program).\n\n[VRL]: https://vector.dev/docs/reference/vrl/"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Timezone used in the VRL [`Program`](vrl::compiler::Program) for date and time\nmanipulations. Defaults to `UTC` if not timezone is specified."
+          }
+        },
+        "additionalProperties": false
+      },
+      "VecSourceParams": {
+        "type": "object",
+        "required": ["docs", "batch_num_docs"],
+        "properties": {
+          "batch_num_docs": { "type": "integer", "minimum": 0 },
+          "docs": { "type": "array", "items": { "type": "string" } },
+          "partition": { "type": "string" }
+        },
+        "additionalProperties": false
+      },
+      "VersionedIndexConfig": {
+        "oneOf": [
+          {
+            "allOf": [
+              { "$ref": "#/components/schemas/IndexConfigV0_8" },
+              {
+                "type": "object",
+                "required": ["version"],
+                "properties": {
+                  "version": { "type": "string", "enum": ["0.8"] }
+                }
+              }
+            ]
+          }
+        ],
+        "discriminator": { "propertyName": "version" }
+      },
+      "VersionedIndexMetadata": {
+        "oneOf": [
+          {
+            "allOf": [
+              { "$ref": "#/components/schemas/IndexMetadataV0_8" },
+              {
+                "type": "object",
+                "required": ["version"],
+                "properties": {
+                  "version": { "type": "string", "enum": ["0.8"] }
+                }
+              }
+            ]
+          }
+        ],
+        "discriminator": { "propertyName": "version" }
+      },
+      "VersionedIndexTemplate": {
+        "oneOf": [
+          {
+            "allOf": [
+              { "$ref": "#/components/schemas/IndexTemplateV0_8" },
+              {
+                "type": "object",
+                "required": ["version"],
+                "properties": {
+                  "version": { "type": "string", "enum": ["0.8"] }
+                }
+              }
+            ]
+          }
+        ],
+        "discriminator": { "propertyName": "version" }
+      },
+      "VersionedSourceConfig": {
+        "oneOf": [
+          {
+            "allOf": [
+              { "$ref": "#/components/schemas/SourceConfigV0_7" },
+              {
+                "type": "object",
+                "required": ["version"],
+                "properties": {
+                  "version": { "type": "string", "enum": ["0.7"] }
+                }
+              }
+            ]
+          },
+          {
+            "allOf": [
+              { "$ref": "#/components/schemas/SourceConfigV0_8" },
+              {
+                "type": "object",
+                "required": ["version"],
+                "properties": {
+                  "version": { "type": "string", "enum": ["0.8"] }
+                }
+              }
+            ]
+          }
+        ],
+        "discriminator": { "propertyName": "version" }
+      },
+      "VersionedSplitMetadata": {
+        "oneOf": [
+          {
+            "allOf": [
+              { "$ref": "#/components/schemas/SplitMetadataV0_8" },
+              {
+                "type": "object",
+                "required": ["version"],
+                "properties": {
+                  "version": { "type": "string", "enum": ["0.8"] }
+                }
+              }
+            ]
+          }
+        ],
+        "discriminator": { "propertyName": "version" }
+      },
+      "VoidSourceParams": { "default": null, "nullable": true }
+    }
+  },
+  "tags": [
+    { "name": "Search" },
+    { "name": "Indexes" },
+    { "name": "Ingest" },
+    { "name": "Delete Tasks" },
+    { "name": "Node Health" },
+    { "name": "Sources" },
+    { "name": "Get Metrics" },
+    { "name": "Cluster Info" },
+    { "name": "Node Info" },
+    { "name": "Indexing" },
+    { "name": "Splits" },
+    { "name": "Jaeger" },
+    { "name": "Debugging" }
+  ]
+}

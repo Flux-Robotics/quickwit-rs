@@ -1,3 +1,5 @@
+pub mod batcher;
+
 use progenitor::generate_api;
 use serde_json::{Map, Value, to_string};
 

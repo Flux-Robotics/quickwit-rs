@@ -1,0 +1,27 @@
+# Create this index with:
+# quickwit index create --config quickwit-client/examples/my-index.yaml
+version: 0.8
+index_id: my-index
+
+doc_mapping:
+  mode: dynamic
+  store_source: true
+  field_mappings:
+    - name: service
+      type: text
+      tokenizer: raw
+      record: basic
+    - name: message
+      type: text
+      tokenizer: default
+      record: position
+    - name: duration_ms
+      type: u64
+      fast: true
+  # Additional fields are accepted through dynamic mode. Add a timestamp
+  # field to the records and set timestamp_field here if time-based search or
+  # retention is needed.
+
+search_settings:
+  default_search_fields:
+    - message
